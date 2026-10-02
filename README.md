@@ -1,5 +1,12 @@
-# Made Pong in under 3kb
+# Made Pong in under 3kB
 The entire shortened code can be copy-pasted into your browser:
 ```
 data:text/html,<body><canvas id="mainCanvas"></canvas><style>html,body{margin:0;padding:0;overflow:hidden;width:100%25;height:100%25;background:black;font-family:sans-serif}canvas{display:block}</style><script>const t=document.getElementById("mainCanvas"),e=t.getContext("2d"),n=window.innerWidth,a=window.innerHeight,i=n/100,l=a/5,o=i,h=n/240,d=n/300;let M=a/2-l/2,r=M,f=n/2,s=a/2,c=2*Math.random()*Math.PI;for(;Math.abs(Math.sin(c))>.7;)c=2*Math.random()*Math.PI;let m=0,w=0;const y=[[[1,1,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]],[[0,1,0],[1,1,0],[0,1,0],[0,1,0],[1,1,1]],[[1,1,1],[0,0,1],[1,1,1],[1,0,0],[1,1,1]],[[1,1,1],[0,0,1],[0,1,1],[0,0,1],[1,1,1]],[[1,0,1],[1,0,1],[1,1,1],[0,0,1],[0,0,1]],[[1,1,1],[1,0,0],[1,1,1],[0,0,1],[1,1,1]],[[1,1,1],[1,0,0],[1,1,1],[1,0,1],[1,1,1]],[[1,1,1],[0,0,1],[0,0,1],[0,0,1],[0,0,1]],[[1,1,1],[1,0,1],[1,1,1],[1,0,1],[1,1,1]],[[1,1,1],[1,0,1],[1,1,1],[0,0,1],[0,0,1]]];function I(t,e,n,a){return!(t-o/2>n+i||n>t+o/2||e-o/2>a+l||a>e+o/2)}function P(){f=n/2,s=a/2,c=2*Math.random()*Math.PI,M=a/2-l/2,r=M}function k(t,n,a,i){for(let l=0;l<5;l++)for(let o=0;o<3;o++)e.fillStyle=y[i][l][o]?"gray":"black",e.fillRect(t+a*o,n+a*l,a+1,a+1)}window.addEventListener("keydown",t=>{87==t.keyCode||38==t.keyCode?(M-=1.5*d,M=Math.max(0,M)):83!=t.keyCode&&40!=t.keyCode||(M+=1.5*d,M=Math.min(a-l,M))}),t.width=n,t.height=a,window.requestAnimationFrame(function t(){e.fillStyle="black",e.fillRect(0,0,n,a),k(.4*n,a/30,i,m),k(.6*n-3*i,a/30,i,w),s<r+l/3?(r-=d,r=Math.max(0,r)):s>r+2*l/3&&(r+=d,r=Math.min(a-l,r));let y=h*Math.cos(c),u=h*Math.sin(c);if(f+=y,s-=u,s<=o/2&&(s=Math.abs(s),c=2*Math.PI-c),s>=a-o/2&&(s=Math.abs(s),c=2*Math.PI-c),I(f,s,2*i,M)){f=3*i+o/2;let t=(s-(M+l/2))/(l/2+o/2);c=2*Math.PI+Math.PI/3*-t}if(I(f,s,n-3*i,r)){f=n-3*i-o/2;let t=(s-(r+l/2))/(l/2+o/2);c=3*Math.PI+Math.PI/3*t}f<-o&&(w++,P()),f>n+o&&(m++,P()),e.fillStyle="white",e.fillRect(2*i,M,i,l),e.fillRect(n-3*i,r,i,l),e.fillRect(f-o/2,s-o/2,o,o),e.lineWidth=2,e.lineCap="round",e.strokeStyle="white",e.setLineDash([1,5]),e.beginPath(),e.moveTo(n/2,0),e.lineTo(n/2,a),e.stroke(),window.requestAnimationFrame(t)});</script></body>
 ```
+
+## How the game works
+ - Everything is drawn to the screen using the Canvas API
+ - The "bot" just tries to approach the ball
+ - The score numbers are actually indiviudal squares saved from a giant array
+ - The angle of the ball bouncing off the paddle depends on where it touches the paddle
+ - The ball's starting direction avoids being too steep

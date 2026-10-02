@@ -1,10 +1,162 @@
 <body>
-  <h1>it works!</h1>
+  <canvas id="mainCanvas"></canvas>
   <style>
-    body { background: black; color: white; font-family: sans-serif; }
+    html, body { 
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      background: black; 
+      font-family: sans-serif; 
+    }
+    canvas {
+      display: block;
+    }
   </style>
   <script>
-    const title = document.querySelector("h1");
-    title.onclick = () => (title.textContent = "you clicked it");
+    const canvas = document.getElementById("mainCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const CWIDTH = window.innerWidth;
+    const CHEIGHT = window.innerHeight;
+    const PWIDTH = CWIDTH / 100;
+    const PHEIGHT = CHEIGHT / 5;
+    const BALLSIZE = PWIDTH;
+
+    // Speeds
+    const BALLSPEED = 3;
+    const PSPEED = 2;
+
+    let userPos = CHEIGHT/2 - PHEIGHT/2;
+    let botPos = userPos;
+
+    // Ball Info
+    // ball center
+    let ballX = CWIDTH / 2;
+    let ballY = CHEIGHT / 2;
+    let ballDir = Math.random() * 2*Math.PI;
+
+    // Scores
+    let userScore = 0;
+    let botScore = 0;
+
+    function doesPaddleIntersect(ballX, ballY, paddleX, paddleY) {
+      if(ballX-BALLSIZE/2 > paddleX+PWIDTH || paddleX > ballX+BALLSIZE/2) {
+        return false;
+      }
+
+      if(ballY-BALLSIZE/2 > paddleY+PHEIGHT || paddleY > ballY+BALLSIZE/2) {
+        return false;
+      }
+
+      return true;
+    }
+
+    function resetRound() {
+      ballX = CWIDTH / 2;
+      ballY = CHEIGHT / 2;
+      ballDir = Math.random() * 2*Math.PI;
+
+      userPos = CHEIGHT/2 - PHEIGHT/2;
+      botPos = userPos;
+    }
+
+    function init() {
+      // Set canvas size
+      canvas.width = CWIDTH;
+      canvas.height = CHEIGHT;
+
+      window.requestAnimationFrame(draw);
+    }
+
+    function draw() {
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, CWIDTH, CHEIGHT);
+
+      // Update bot
+      if(ballY < botPos + PHEIGHT/3) {
+        botPos -= PSPEED;
+        botPos = Math.max(0, botPos);
+      }else if(ballY > botPos + 2*PHEIGHT/3) {
+        botPos += PSPEED;
+        botPos = Math.min(CHEIGHT-PHEIGHT, botPos);
+      }
+
+
+      // Update ball
+      let balldX = BALLSPEED*Math.cos(ballDir);
+      let balldY = BALLSPEED*Math.sin(ballDir);
+      ballX += balldX;
+      ballY -= balldY;
+
+      // Bound ball on the top/bottom
+      if(ballY <= BALLSIZE/2) {
+        ballY = Math.abs(ballY);
+        ballDir = 2*Math.PI - ballDir;
+      }
+      if(ballY >= CHEIGHT-BALLSIZE/2) {
+        ballY = Math.abs(ballY);
+        ballDir = 2*Math.PI - ballDir;
+      }
+
+      // Bounce ball off paddles
+      if(doesPaddleIntersect(ballX, ballY, PWIDTH*2, userPos)) {
+        ballX = PWIDTH*3 + BALLSIZE/2;
+
+        // Vertical offset fom the paddle's center of the ball hitting [-1, 1]
+        let offset = (ballY - (userPos + PHEIGHT/2)) / (PHEIGHT/2 + BALLSIZE/2)
+        ballDir = 2*Math.PI + (Math.PI/3) * -offset;
+      }
+      if(doesPaddleIntersect(ballX, ballY, CWIDTH - PWIDTH*3, botPos)) {
+        ballX = CWIDTH - PWIDTH*3 - BALLSIZE/2;
+
+        // Vertical offset fom the paddle's center of the ball hitting [-1, 1]
+        let offset = (ballY - (botPos + PHEIGHT/2)) / (PHEIGHT/2 + BALLSIZE/2)
+        ballDir = 3*Math.PI + (Math.PI/3) * offset;
+      }
+
+      // Check if scored
+      if(ballX < -BALLSIZE) {
+        userScore++;
+        resetRound();
+      }
+      if(ballX > CWIDTH+BALLSIZE) {
+        userScore++;
+        resetRound();
+      }
+
+      // Draw paddles
+      ctx.fillStyle = "white";
+      ctx.fillRect(PWIDTH*2, userPos, PWIDTH, PHEIGHT);
+      ctx.fillRect(CWIDTH-PWIDTH*3, botPos, PWIDTH, PHEIGHT);
+
+      // Draw ball
+      ctx.fillRect(ballX - BALLSIZE/2, ballY - BALLSIZE/2, BALLSIZE, BALLSIZE);
+
+      // Draw line and score
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = "white";
+      ctx.setLineDash([1, 5]);
+      ctx.beginPath();
+      ctx.moveTo(CWIDTH/2, 0);
+      ctx.lineTo(CWIDTH/2, CHEIGHT);
+      ctx.stroke();
+
+      window.requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('keydown', (event) => {
+      if(event.keyCode == 87 || event.keyCode == 38) {
+        userPos -= PSPEED*1.5;
+        userPos = Math.max(0, userPos);
+      }else if(event.keyCode == 83 || event.keyCode == 40) {
+        userPos += PSPEED*1.5;
+        userPos = Math.min(CHEIGHT-PHEIGHT, userPos);
+      }
+    });
+
+    init();
   </script>
 </body>

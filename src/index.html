@@ -25,8 +25,8 @@
     const BALLSIZE = PWIDTH;
 
     // Speeds
-    const BALLSPEED = 3;
-    const PSPEED = 2;
+    const BALLSPEED = CWIDTH/240;
+    const PSPEED = CWIDTH/300;
 
     let userPos = CHEIGHT/2 - PHEIGHT/2;
     let botPos = userPos;
@@ -35,11 +35,31 @@
     // ball center
     let ballX = CWIDTH / 2;
     let ballY = CHEIGHT / 2;
+
     let ballDir = Math.random() * 2*Math.PI;
+    // Avoid steep angles
+    while(Math.abs(Math.sin(ballDir)) > 0.7) {
+      ballDir = Math.random() * 2*Math.PI;
+    }
 
     // Scores
     let userScore = 0;
     let botScore = 0;
+
+    // Score numbers
+    const NUMBERS = [
+      [[1, 1, 1], [1, 0, 1], [1, 0, 1], [1, 0, 1], [1, 1, 1]],
+      [[0, 1, 0], [1, 1, 0], [0, 1, 0], [0, 1, 0], [1, 1, 1]],
+      [[1, 1, 1], [0, 0, 1], [1, 1, 1], [1, 0, 0], [1, 1, 1]],
+      [[1, 1, 1], [0, 0, 1], [0, 1, 1], [0, 0, 1], [1, 1, 1]],
+      [[1, 0, 1], [1, 0, 1], [1, 1, 1], [0, 0, 1], [0, 0, 1]],
+      [[1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0, 1], [1, 1, 1]],
+      [[1, 1, 1], [1, 0, 0], [1, 1, 1], [1, 0, 1], [1, 1, 1]],
+      [[1, 1, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1]],
+      [[1, 1, 1], [1, 0, 1], [1, 1, 1], [1, 0, 1], [1, 1, 1]],
+      [[1, 1, 1], [1, 0, 1], [1, 1, 1], [0, 0, 1], [0, 0, 1]],
+
+    ]
 
     function doesPaddleIntersect(ballX, ballY, paddleX, paddleY) {
       if(ballX-BALLSIZE/2 > paddleX+PWIDTH || paddleX > ballX+BALLSIZE/2) {
@@ -62,6 +82,15 @@
       botPos = userPos;
     }
 
+    function drawNumber(x, y, size, num) {
+      for(let i = 0; i < 5; i++) {
+        for(let j = 0; j < 3; j++) {
+          ctx.fillStyle = NUMBERS[num][i][j] ? "gray" : "black";
+          ctx.fillRect(x+size*j, y+size*i, size+1, size+1);
+        }
+      }
+    }
+
     function init() {
       // Set canvas size
       canvas.width = CWIDTH;
@@ -73,6 +102,9 @@
     function draw() {
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, CWIDTH, CHEIGHT);
+
+      drawNumber(CWIDTH*0.4, CHEIGHT/30, PWIDTH, userScore);
+      drawNumber(CWIDTH*0.6 - 3*PWIDTH, CHEIGHT/30, PWIDTH, botScore);
 
       // Update bot
       if(ballY < botPos + PHEIGHT/3) {
@@ -118,7 +150,7 @@
 
       // Check if scored
       if(ballX < -BALLSIZE) {
-        userScore++;
+        botScore++;
         resetRound();
       }
       if(ballX > CWIDTH+BALLSIZE) {
